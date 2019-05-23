@@ -22,8 +22,26 @@ export default {
     }
   },
   mounted() {
-    this.renderMap();
-    console.log(fb.auth().currentUser);
+    //Get User Geo Location
+    if (navigator.geolocation) {
+      console.log("hurry");
+      navigator.geolocation.getCurrentPosition(
+        pos => {
+          this.lat = pos.coords.latitude;
+          this.lng = pos.coords.longitude;
+          this.renderMap();
+          console.log("hurry2");
+        },
+        err => {
+          console.log(err);
+          this.renderMap();
+        },
+        { maximumAge: 6000, timeout: 10000 }
+      );
+    } else {
+      //position center default
+      this.renderMap();
+    }
   }
 };
 </script>
