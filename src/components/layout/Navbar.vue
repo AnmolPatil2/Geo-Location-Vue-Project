@@ -2,7 +2,7 @@
   <div class="navbar">
     <nav class="deep-purple darken-1">
       <div class="container">
-        <a href class="logo left">Geo-App</a>
+        <router-link to="/" class="logo left">Geo-App</router-link>
         <div class="nav-content">
           <ul>
             <div class="left">
@@ -15,10 +15,13 @@
             </div>
             <div class="right">
               <li>
-                <a href>Sighup</a>
+                <router-link :to="{name:'SignUp'}" v-if="loginstatus">Sighup</router-link>
               </li>
               <li>
-                <a href>Login</a>
+                <router-link :to="{name:'login'}" v-if="loginstatus">Login</router-link>
+              </li>
+              <li>
+                <a @click="logout()" v-if="!loginstatus">Log Out</a>
               </li>
             </div>
           </ul>
@@ -28,12 +31,23 @@
   </div>
 </template>
 <script>
+import firebase from "firebase";
 export default {
   name: "Navbar",
   data() {
-    return {};
+    return { loginstatus: false };
   },
-  methods: {}
+  methods: {
+    logout() {
+      this.loginstatus = true;
+      firebase
+        .auth()
+        .signOut()
+        .then(() => {
+          this.$router.push({ name: "login" });
+        });
+    }
+  }
 };
 </script>
 

@@ -4,6 +4,7 @@
   </div>
 </template>
 <script>
+import { fb, db } from "../firebase";
 export default {
   name: "Gmap",
   data() {
@@ -22,6 +23,7 @@ export default {
   },
   mounted() {
     this.renderMap();
+    console.log(fb.auth().currentUser);
   }
 };
 </script>
