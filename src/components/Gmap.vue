@@ -5,6 +5,7 @@
 </template>
 <script>
 import { fb, db } from "../firebase";
+import firebase from "firebase";
 export default {
   name: "Gmap",
   data() {
@@ -19,18 +20,55 @@ export default {
         minZoom: 3,
         streetViewControl: false
       });
+      db.collection("users")
+        .get()
+        .then(user => {
+          user.docs.forEach(doc => {
+            let data = doc.data();
+            if (data.geolocation) {
+              let marker = new google.maps.Marker({
+                position: {
+                  lat: data.geolocation.lat,
+                  lng: data.geolocation.lng
+                },
+                map: map
+              });
+              marker.addListener("click", () => {
+                this.$router.push({ name: "profile", params: { id: doc.id } });
+              });
+            }
+          });
+        });
     }
   },
   mounted() {
+    //getting user
+    let user = firebase.auth().currentUser;
+
     //Get User Geo Location
     if (navigator.geolocation) {
-      console.log("hurry");
       navigator.geolocation.getCurrentPosition(
         pos => {
           this.lat = pos.coords.latitude;
           this.lng = pos.coords.longitude;
-          this.renderMap();
-          console.log("hurry2");
+          db.collection("users")
+            .where("user_id", "==", user.uid)
+            .get()
+            .then(snapshot => {
+              snapshot.forEach(doc => {
+                db.collection("users")
+                  .doc(doc.id)
+                  .update({
+                    geolocation: {
+                      lat: pos.coords.latitude,
+                      lng: pos.coords.longitude
+                    }
+                  });
+              });
+            })
+            .then(() => {
+              this.renderMap();
+            });
         },
         err => {
           console.log(err);
